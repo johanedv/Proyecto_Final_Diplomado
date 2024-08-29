@@ -7,9 +7,6 @@ format:
      code-fold: show
 ---
 
-```{r}
-library("rlang")
-```
 
 ```{r}
 #| label: setup
