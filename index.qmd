@@ -1,10 +1,13 @@
 ---
-title: "Proyecto_Final_Diplomado"
+title: "Proyecto Final Diplomado"
 author: "Johan R. Vallejo"
 format: 
    html:
      toc: true
+     toc-location: left
      code-fold: show
+cache: true
+lang: es
 ---
 
 
@@ -22,24 +25,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Mi proyecto inicial
+## Macroinverteberados acuáticos
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Preferencias abioticas de macroinvertebrados acuáticos en un río tropical
 
-## Running Code
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-
+```{r, cargando base de datos}
+macroffqq <- read.csv("Bases/Abiotic_Preferences_of_Macroinvertebrates.csv")
 ```
-
-You can add options to executable code like this
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
