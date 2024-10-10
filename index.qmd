@@ -8,10 +8,13 @@ format:
      code-fold: show
 cache: true
 lang: es
+editor_options: 
+  chunk_output_type: console
 ---
 
 
 ```{r}
+
 #| label: setup
 #| include: false
 
@@ -23,6 +26,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   fig.align = "center"
 )
+
 ```
 
 ## Macroinverteberados acuáticos
@@ -32,4 +36,118 @@ Preferencias abioticas de macroinvertebrados acuáticos en un río tropical
 
 ```{r, cargando base de datos}
 macroffqq <- read.csv("Bases/Abiotic_Preferences_of_Macroinvertebrates.csv")
+
 ```
+Aplicando un análisis de varianza : temperaturas del agua en rios de diferentes paises
+
+
+```{r, librerias, eval=TRUE}
+##Activando librerias
+library(tidyverse)
+library(car)
+library(ggstatsplot)
+```
+
+
+```{r}
+##Revisando estructura de datos
+str(macroffqq)
+View(macroffqq)
+names(macroffqq)
+```
+
+
+
+Revisando asunciones:
+1 - Normalidad
+
+```{r}
+##A1: Normalidad
+
+macroffqq %>% 
+  ggplot(aes(x = Water_temperature, fill = Country)) +
+  geom_density(alpha =0.4)
+
+
+qqnorm(macroffqq$Water_temperature)
+qqline(macroffqq$Water_temperature)
+
+
+macroffqq %>% 
+  ggplot(aes(sample = Water_temperature, color = Country)) +
+  geom_qq() +
+  geom_qq_line() +
+  facet_wrap(~Country) +
+  theme_classic()
+  
+tapply(macroffqq$Water_temperature, macroffqq$Country, shapiro.test)
+
+```
+p < 0.05 para la temperatura en Ethiopia, por lo cual hay evidencia para rechazar la hipotesis nula de normalidad. En el caso de la temperatura del agua medida en rios de otros de los otros dos paises (Ecuador y Vietnan) le valor p > 0.05, lo que imlica que si hay normalidad. Estos resultados llevan por el camino de los análisis no paramétricos ya que en por lo menos uno de los grupos no hay normalidad.  
+
+
+
+
+
+2 - Homocedasticidad
+
+```{r}
+leveneTest(Water_temperature ~ Country, data = macroffqq, center = mean)
+
+```
+El resultado india un valor p > 0.05 lo cual indica que no hay evidencia suficiente para rechazar la hipotesis nula de homocedasticidad en las varianzas. Es decir existe homocedasticidad de varianzas 
+
+
+
+
+3 - Aplicando el análisis de varianza - Kruskall Wallis
+```{r}
+##Aplicando el análisis de varianza no paramétrico (Kuskall Wallis)
+
+kw <- kruskal.test(Water_temperature ~ Country, data = macroffqq)
+kw
+
+```
+Valor p < 0.05, por lo que existe evidencia suficiente para rechazar la hipotesis nula, es decir al menos un grupo es diferentes a los demás. Esto lleva realizae una prueba de post hoc, en este caso la más apropiada es dunn test 
+
+
+
+
+4 - Aplizando un post-hoc, dunn.test()
+
+```{r}
+dunn.test::dunn.test(macroffqq$Water_temperature, macroffqq$Country, 
+                     method = "bonferroni" )
+```
+La prueba de dunn indico que hay diferencias significativas de temperatura de agua  entre todos los grupos (Ecuador, Ethiopia y Vietnam)  con valores <0.05 para cada pareo
+
+
+
+
+5 - Graficando
+```{r}
+
+ggbetweenstats(macroffqq, x = Country, y = Water_temperature, 
+               type = "np", var.equal = TRUE, bf.message = FALSE) +
+  labs(x = "Pais", y = "Temperatura del agua")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
